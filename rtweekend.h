@@ -33,7 +33,7 @@ inline double random_double(double min, double max) {
 
 inline double clamp(double x, double min, double max) {
     if (x < min) return min;
-    if (x > min) return max;
+    if (x > max) return max;
     return x;
 }
 

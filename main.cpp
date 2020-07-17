@@ -20,7 +20,7 @@ int main() {
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 384;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 10;
+    const int samples_per_pixel = 100;
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
