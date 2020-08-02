@@ -27,7 +27,7 @@ color ray_color(const ray& r, const hittable& world, int depth) {
 
 int main() {
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 384;
+    const int image_width = 384*2;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 100;
     const int max_depth = 50;
@@ -41,26 +41,23 @@ int main() {
     auto origin = point3(0,0,0);
     auto horizontal = vec3(viewport_width, 0, 0);
     auto vertical = vec3(0, viewport_height, 0);
-    auto lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0, 0, focal_length);
 
     // World
 
-    auto R = cos(pi/4);
     hittable_list world;
-    world.add(make_shared<sphere>(
-        point3(0,0.1,-1), 0.5, make_shared<dielectric>(1.5)));
-    world.add(make_shared<sphere>(
-        point3(0,0.1,-1), -0.4, make_shared<dielectric>(1.5)));
-
-    world.add(make_shared<sphere>(
-        point3(0,-100.5,-1), 100, make_shared<lambertian>(color(0.8, 0.8, 0.0))));
-
-    world.add(make_shared<sphere>(point3(1.1,0,-1), 0.5, make_shared<metal>(color(.8,.6,.2), 0.0)));
-    world.add(make_shared<sphere>(point3(-1.1,0,-1), 0.5, make_shared<metal>(color(.8,.8,.8), 1.0)));
+    auto earth = make_shared<sphere>(
+        point3(0,-6.3781e6 - 3,0), 6.3781e6, make_shared<lambertian>(color(0.8, 0.8, 0.0)));
+    auto moon = make_shared<sphere>(
+        point3(0,0,-3.84402e8), 1.7374e6, make_shared<lambertian>(color(0.8, 0.8, 0.8)));
+    auto sun = make_shared<sphere>(
+        point3(10e9, 10e9,-1.496e11), 695700e3, make_shared<lambertian>(color(0.8, 0.6, 0.2)));
+    world.add(earth);
+    world.add(moon);
+    world.add(sun);
 
     // Camera
 
-    camera cam(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 20, aspect_ratio);
+    camera cam(point3(0,0,0), point3(0,0,-1), vec3(0,1,0), 20, aspect_ratio);
 
     for (int j = image_height-1; j >= 0; --j) {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
