@@ -7,6 +7,9 @@ Solar system simulation
 First mission: recreate something like this 1967 shot of Earth and moon from voyager 7mm miles away.
 
 ![Moon & Earth from Voyager](/images/voyager_earth_moon.jpg)
+Second mission: recreate earthrise from apollo 8
+
+![Earthrise](/images/apollo8_dec24_earthrise.jpg)
 
 ## notes
 
