@@ -5,6 +5,7 @@
 #include "sphere.h"
 #include "material.h"
 
+#include <fstream>
 #include<iostream>
 
 color ray_color(const ray& r, const hittable& world, int depth) {
@@ -29,8 +30,6 @@ int main() {
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 100;
     const int max_depth = 50;
-
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
     // World
 
@@ -68,21 +67,29 @@ int main() {
     // cam should be on surface of earth or moon, pointed at sun or other body.
     auto lat = (earth_radius+3)*sin(M_PI/7);
     auto lon = (earth_radius+3)*cos(M_PI/7);
-    auto lat_long = point3(0, lon, lat);
-    camera cam(earth_position + lat_long, sun_position, unit_vector(lat_long), 160, aspect_ratio);
+    std::ofstream output;
+    char buffer [100];
+    for (int z=0; z < 100; z++) {
+        sprintf(buffer, "video/%d.ppm", z);
+        output.open(buffer);
+        auto lat_long = point3(lon*sin(M_PI/50*z), lon*cos(M_PI/50*z), lat);
+        camera cam(earth_position + lat_long, sun_position, unit_vector(lat_long), 160, aspect_ratio);
 
-    for (int j = image_height-1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i) {
-            color pixel_color(0, 0, 0);
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                auto u = (i + random_double()) / (image_width-1);
-                auto v = (j + random_double()) / (image_height-1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
+        output << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+        for (int j = image_height-1; j >= 0; --j) {
+            std::cerr << "\rScanlines remaining: " << j << ' ' << "of " << z << std::flush;
+            for (int i = 0; i < image_width; ++i) {
+                color pixel_color(0, 0, 0);
+                for (int s = 0; s < samples_per_pixel; ++s) {
+                    auto u = (i + random_double()) / (image_width-1);
+                    auto v = (j + random_double()) / (image_height-1);
+                    ray r = cam.get_ray(u, v);
+                    pixel_color += ray_color(r, world, max_depth);
+                }
+                write_color(output, pixel_color, samples_per_pixel);
             }
-            write_color(std::cout, pixel_color, samples_per_pixel);
         }
+        output.close();
     }
 
     std::cerr << "\nDone.\n";

@@ -2,7 +2,7 @@
 
 Solar system simulation
 
-![View of Sky](/images/o.png)
+![View of Sky](/images/tl.gif)
 
 First mission: recreate something like this 1967 shot of Earth and moon from voyager 7mm miles away.
 
