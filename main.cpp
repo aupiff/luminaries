@@ -66,9 +66,10 @@ int main() {
 
     // Camera
     // cam should be on surface of earth or moon, pointed at sun or other body.
-    auto lat = (earth_radius+3)*sin(-M_PI/7);
-    auto lon = (earth_radius+3)*cos(-M_PI/7);
-    camera cam(earth_position + point3(lat, lon, 0), sun_position, vec3(0,1,0), 160, aspect_ratio);
+    auto lat = (earth_radius+3)*sin(M_PI/7);
+    auto lon = (earth_radius+3)*cos(M_PI/7);
+    auto lat_long = point3(0, lon, lat);
+    camera cam(earth_position + lat_long, sun_position, unit_vector(lat_long), 160, aspect_ratio);
 
     for (int j = image_height-1; j >= 0; --j) {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
