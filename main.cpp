@@ -20,14 +20,12 @@ color ray_color(const ray& r, const hittable& world, int depth) {
         return color(0,0,0);
     }
 
-    vec3 unit_direction = unit_vector(r.direction());
-    auto t = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-t)*color(1.0,1.0,1.0) + t*color(0.5, 0.7, 1.0);
+    return color(1.0, 1.0, 1.0);
 }
 
 int main() {
     const auto aspect_ratio = 1;
-    const int image_width = 384*4;
+    const int image_width = 384;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 100;
     const int max_depth = 50;
@@ -37,20 +35,40 @@ int main() {
     // World
 
     hittable_list world;
-    auto earth = make_shared<sphere>(
-        point3(0,-6.3781e6 - 3,0), 6.3781e6, make_shared<lambertian>(color(0.8, 0.8, 0.0)));
-    auto moon = make_shared<sphere>(
-        point3(-10e6, 10e6,-3.84402e8), 1.7374e6, make_shared<lambertian>(color(0.8, 0.8, 0.8)));
-    auto sun = make_shared<sphere>(
-        point3(10e9, 10e9,-1.496e11), 695700e3, make_shared<lambertian>(color(0.8, 0.6, 0.2)));
+    auto distance_to_sun = -1.496e11;
+    // * 3 for better visibility
+    auto sun_radius = 695700e3 * 30;
+    auto distance_to_moon = -3.84402e8;
+    // * 3 for better visibility
+    auto moon_radius = 1.7374e6 * 25;
+    auto earth_radius = 6.3781e6;
 
+    // place immovable sun at (0,0)
+    auto sun_position = point3(0, 0, 0);
+    auto sun = make_shared<sphere>(
+        sun_position, sun_radius, make_shared<lambertian>(color(0.8, 0.6, 0.2)));
+
+    // plane of earth's revolution around sun is x-y plane
+    auto earth_position = point3(distance_to_sun * cos(M_PI/4), distance_to_sun * sin(M_PI/4), 0);
+
+    auto earth = make_shared<sphere>(
+        earth_position, earth_radius, make_shared<lambertian>(color(0.0, 0.0, 1.0)));
+
+    // TODO 5* inclination of moon's revolution around earth to the ecliptic
+    auto moon_position = point3(distance_to_moon * cos(-M_PI/2), distance_to_moon * sin(-M_PI/2), 1000000000) + earth_position;
+
+
+    auto moon = make_shared<sphere>(
+        moon_position, moon_radius, make_shared<lambertian>(color(0.8, 0.8, 0.8)));
     world.add(earth);
     world.add(moon);
     world.add(sun);
 
     // Camera
-
-    camera cam(point3(0,0,0), point3(0,0,-1), vec3(0,1,0), 100, aspect_ratio);
+    // cam should be on surface of earth or moon, pointed at sun or other body.
+    auto lat = (earth_radius+3)*sin(-M_PI/7);
+    auto lon = (earth_radius+3)*cos(-M_PI/7);
+    camera cam(earth_position + point3(lat, lon, 0), sun_position, vec3(0,1,0), 160, aspect_ratio);
 
     for (int j = image_height-1; j >= 0; --j) {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
